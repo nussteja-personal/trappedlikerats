@@ -1,0 +1,93 @@
+/* Background image */
+body {
+  background: url("images/Windows-XP-4K-modified.jpg") no-repeat center center fixed;
+  background-size: cover;
+  color: rgb(233, 0, 0);
+  font-family: sans-serif;
+  font-size: 24px;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  margin: 20px 0;
+  text-shadow: 2px 2px 2px black;
+}
+
+.character-grid {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px;
+}
+
+/* Character portraits now always have borders + labels */
+.character {
+  position: relative;
+  display: inline-block;
+  width: 120px;
+  height: 120px;
+  margin: 8px;
+  text-align: center;
+  background: url("images/select_bg.png") center/cover no-repeat;
+  border: 4px solid #000000;
+  border-radius: 6px;
+}
+
+.character img {
+  width: 100%;
+  height: auto;
+  margin-top: 0px; /* space inside the frame */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.character:hover {
+  transform: scale(1.1);
+}
+
+.char-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 2px 0;
+  background: rgba(0, 0, 0, 0.7); /* translucent bar */
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  font-family: sans-serif;
+}
+
+/* Player panels */
+.player-panels {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 30px;
+}
+
+.player-panel {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  width: 200px;
+}
+
+.player-panel .portrait {
+  width: 150px;
+  height: 200px;
+  background: #555;
+  margin: 0 auto 10px;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid white;
+  border-radius: 6px;
+}
+
+.player-panel .name {
+  font-size: 1.2em;
+  font-weight: bold;
+}
