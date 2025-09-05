@@ -30,9 +30,13 @@ h1 {
   height: 120px;
   margin: 8px;
   text-align: center;
-  background: url("images/select_bg.png") center/cover no-repeat;
+  /* background: url("images/select_bg.png") center/cover no-repeat; */
   border: 5px solid #000000;
   border-radius: 6px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .character img {
@@ -59,6 +63,10 @@ h1 {
   font-size: 12px;
   text-align: center;
   font-family: sans-serif;
+}
+
+.background-tint {
+  filter: sepia(100%) saturate(200%) brightness(70%) hue-rotate(330deg);
 }
 
 /* Player panels */

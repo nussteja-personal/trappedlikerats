@@ -65,3 +65,10 @@ function checkBothLocked() {
   }
 }
 
+// Apply each character’s unique background
+document.querySelectorAll('.character').forEach(char => {
+  const bg = char.dataset.bg;
+  if (bg) {
+    char.style.backgroundImage = `url(${bg})`;
+  }
+});
