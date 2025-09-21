@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Head-to-Head Matchup</title>
+  <script type="module" src="./headtohead.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px;
+      background: #1a1a1a;
+      color: white;
+    }
+    .matchup {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 2px solid #555;
+      padding: 20px;
+      border-radius: 10px;
+      background: #222;
+    }
+    .fighter {
+      margin: 10px;
+      text-align: center;
+    }
+    .fighter img {
+      width: 150px;
+      height: auto;
+      border: 2px solid #fff;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 5px;
+      padding: 6px 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      background: #f04e30;
+      border: none;
+      border-radius: 5px;
+      color: white;
+    }
+    .standings {
+      flex: 1;
+      border: 2px solid #555;
+      padding: 20px;
+      border-radius: 10px;
+      background: #222;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    td, th {
+      border-bottom: 1px solid #444;
+      padding: 6px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="matchup">
+    <h2>Today's Matchup</h2>
+    <div class="fighter" id="fighter1"></div>
+    <div class="fighter" id="fighter2"></div>
+  </div>
+
+  <div class="standings">
+    <h2>Standings</h2>
+    <table id="standingsTable">
+      <thead>
+        <tr><th>Fighter</th><th>Wins</th><th>Losses</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</body>
+</html>
