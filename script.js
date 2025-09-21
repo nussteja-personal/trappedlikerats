@@ -72,3 +72,100 @@ document.querySelectorAll('.character').forEach(char => {
     char.style.backgroundImage = `url(${bg})`;
   }
 });
+
+
+
+
+
+
+// // === Fighter Data ===
+// // You can reuse this array from your original page
+// const fighters = [
+//   { name: "Jin", image: "images/jin.webp", wins: 0, losses: 0 },
+//   { name: "Kazuya", image: "images/kazuya.webp", wins: 0, losses: 0 },
+//   { name: "Paul", image: "images/paul.webp", wins: 0, losses: 0 },
+//   { name: "King", image: "images/king.webp", wins: 0, losses: 0 }
+// ];
+
+// // === Load any saved data from localStorage ===
+// const savedStats = JSON.parse(localStorage.getItem("fighterStats"));
+// if (savedStats) {
+//   fighters.forEach(f => {
+//     const saved = savedStats.find(s => s.name === f.name);
+//     if (saved) {
+//       f.wins = saved.wins;
+//       f.losses = saved.losses;
+//     }
+//   });
+// }
+
+// // === DOM References ===
+// const fighterEls = [document.getElementById("fighter1"), document.getElementById("fighter2")];
+// const standingsTable = document.querySelector("#standings tbody");
+
+// let currentMatchup = [];
+
+// // === Utility: Pick Two Random Fighters ===
+// function pickMatchup() {
+//   let i = Math.floor(Math.random() * fighters.length);
+//   let j;
+//   do {
+//     j = Math.floor(Math.random() * fighters.length);
+//   } while (j === i);
+
+//   currentMatchup = [fighters[i], fighters[j]];
+//   renderMatchup();
+// }
+
+// // === Render the Matchup to the Page ===
+// function renderMatchup() {
+//   fighterEls.forEach((el, index) => {
+//     const fighter = currentMatchup[index];
+//     el.querySelector("img").src = fighter.image;
+//     el.querySelector("img").alt = fighter.name;
+//     el.querySelector(".fighter-name").textContent = fighter.name;
+//     el.querySelector("button").textContent = `Vote ${fighter.name}`;
+//   });
+// }
+
+// // === Handle a Vote ===
+// function vote(index) {
+//   const winner = currentMatchup[index];
+//   const loser = currentMatchup[index === 0 ? 1 : 0];
+
+//   winner.wins++;
+//   loser.losses++;
+
+//   saveStats();
+//   renderLeaderboard();
+//   pickMatchup();
+// }
+
+// // === Save Stats to localStorage ===
+// function saveStats() {
+//   localStorage.setItem("fighterStats", JSON.stringify(fighters));
+// }
+
+// // === Render Leaderboard Table ===
+// function renderLeaderboard() {
+//   // Sort fighters by wins (descending)
+//   const sorted = [...fighters].sort((a, b) => b.wins - a.wins);
+
+//   standingsTable.innerHTML = "";
+//   sorted.forEach(f => {
+//     const totalMatches = f.wins + f.losses;
+//     const winPct = totalMatches > 0 ? ((f.wins / totalMatches) * 100).toFixed(1) + "%" : "-";
+//     const row = document.createElement("tr");
+//     row.innerHTML = `
+//       <td>${f.name}</td>
+//       <td>${f.wins}</td>
+//       <td>${f.losses}</td>
+//       <td>${winPct}</td>
+//     `;
+//     standingsTable.appendChild(row);
+//   });
+// }
+
+// // === Initialize Page ===
+// renderLeaderboard();
+// pickMatchup();

@@ -99,3 +99,34 @@ h1 {
   font-size: 1.2em;
   font-weight: bold;
 }
+
+/* headtohead */
+
+.h2h-page .container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.matchup {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.fighter {
+  text-align: center;
+}
+
+.fighter img {
+  width: 150px;
+  height: auto;
+  border: 2px solid white;
+  border-radius: 8px;
+}
+
+.vs-label {
+  font-size: 2rem;
+  font-weight: bold;
+}
