@@ -1,10 +1,13 @@
 import { db } from "./firebase.js";
-import { 
-  doc, getDoc, onSnapshot, updateDoc, increment,
-  collection, getDocs
-} from "firebase/firestore";
 
-const matchupId = "matchup-1"; // ✅ change this to match your document ID
+console.log("DB from firebase.js:", db);
+
+import {
+    doc, getDoc, onSnapshot, updateDoc, increment,
+    collection, getDocs
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+const matchupId = "matchup-1"; // match your Firestore doc ID
 const matchupRef = doc(db, "matchups", matchupId);
 
 // Load matchup and attach listener

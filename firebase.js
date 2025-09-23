@@ -1,9 +1,11 @@
-// firebase.js
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore"; // ✅ IMPORTANT
 
-// Your Firebase config (from project settings)
+
+
+// firebase.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyDkUMcE43qL10RReP7-hlF0k6XBO2J3aCo",
   authDomain: "trapped-like-rats.firebaseapp.com",
@@ -18,5 +20,5 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// Export Firestore database reference
+// Export Firestore so other modules can import it
 export const db = getFirestore(app);
