@@ -60,7 +60,7 @@ h1 {
   padding: 2px 0;
   background: rgba(0, 0, 0, 0.7); /* translucent bar */
   color: #fff;
-  font-size: 12px;
+  font-size: 11px;
   text-align: center;
   font-family: sans-serif;
 }
@@ -102,7 +102,7 @@ h1 {
 
 /* headtohead */
 
-.h2h-page .container {
+/* .h2h-page .container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
@@ -135,4 +135,4 @@ h1 {
   background: linear-gradient(90deg, gold, orange);
   font-weight: bold;
   text-shadow: 1px 1px 2px black;
-}
+} */
