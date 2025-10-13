@@ -1,0 +1,23 @@
+{
+  "name": "trappedlikerats",
+  "version": "1.0.0",
+  "description": "",
+  "main": "finalizeExpiredMatchups.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nussteja-personal/trappedlikerats.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nussteja-personal/trappedlikerats/issues"
+  },
+  "homepage": "https://github.com/nussteja-personal/trappedlikerats#readme",
+  "dependencies": {
+    "firebase-admin": "^13.5.0"
+  }
+}

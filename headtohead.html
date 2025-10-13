@@ -130,38 +130,40 @@
       opacity: 0.6;
       cursor: not-allowed;
     }
-    #standingsColumn {
-      background: #222;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.6);
-      max-height: calc(100vh - 4rem);
-      overflow-y: auto;
-      width: auto;
+    #standingsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-    }
+#standingsTable th, #standingsTable td {
+  padding: 8px 10px;
+  text-align: center;
+  border-bottom: 1px solid #444;
+  color: #eee;
+}
 
-    table {
-      width: auto;
-      border-collapse: collapse;
-      color: #fff;
-      font-size: 12px;
-      text-align: center;
-      font-family: sans-serif;
-    }
+/* Default row styling */
+#standingsTable tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
 
-    th, td {
-      padding: 0.5rem;
-      text-align: center;
-    }
+/* Highlight Top 16 */
+.top16 {
+  background: linear-gradient(90deg, rgba(255,215,0,0.2), rgba(255,255,255,0));
+  border-left: 4px solid gold;
+  font-weight: bold;
+  color: #fff;
+}
 
-    th {
-      border-bottom: 2px solid #444;
-    }
+/* Optional extra flair for top 3 */
+#standingsTable tr:nth-child(2) .top16 {
+  background: linear-gradient(90deg, rgba(192,192,192,0.3), rgba(255,255,255,0));
+}
+#standingsTable tr:nth-child(3) .top16 {
+  background: linear-gradient(90deg, rgba(205,127,50,0.3), rgba(255,255,255,0));
+}
 
-    tr:nth-child(even) {
-      background-color: #333;
-    }
+
     .matchup-card.completed {
   opacity: 0.8;
   background: #333;
@@ -192,14 +194,15 @@
       <h2>Standings</h2>
       <table id="standingsTable">
         <thead>
-            <tr>
-              <th>Fighter</th>
-              <th>Wins</th>
-              <th>Losses</th>
-              <th>Ties</th>
-              <th>Vote Diff</th> <!-- 👈 NEW -->
-            </tr>
-          </thead>
+          <tr>
+            <th>Rank</th>
+            <th>Fighter</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>Ties</th>
+            <th>Vote Diff</th>
+          </tr>
+        </thead>
         <tbody></tbody>
       </table>
     </div>
