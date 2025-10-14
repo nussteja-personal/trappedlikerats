@@ -83,10 +83,10 @@ async function loadMatchups() {
       </div>
       <div class="vs">VS</div>
       <div class="fighter">
-        <img src="${fighter2.image}" alt="${fighter2.name}">
         <button id="${matchupId}-btn-${matchup.fighter2}">
           Vote ${fighter2.name}
         </button>
+        <img src="${fighter2.image}" alt="${fighter2.name}">
       </div>
     `;
 
@@ -154,30 +154,40 @@ async function updateStandings() {
   const snapshot = await getDocs(collection(db, "fighters"));
   const fighters = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  // Sort standings: Wins ↓, Losses ↑, Vote Differential ↓, Ties ↑
-  fighters.sort((a, b) => {
-    const winsA = a.wins || 0;
-    const winsB = b.wins || 0;
-    const lossesA = a.losses || 0;
-    const lossesB = b.losses || 0;
-    const diffA = a.voteDifferential || 0;
-    const diffB = b.voteDifferential || 0;
-    const tiesA = a.ties || 0;
-    const tiesB = b.ties || 0;
+  // Calculate points dynamically
+  fighters.forEach(f => {
+    const wins = f.wins || 0;
+    const ties = f.ties || 0;
+    f.points = wins * 1 + ties * 0.5;
+  });
 
-    if (winsB !== winsA) return winsB - winsA;
-    if (lossesA !== lossesB) return lossesA - lossesB;
-    if (diffB !== diffA) return diffB - diffA;
-    return tiesA - tiesB;
+  // Sort by: Points ↓, Vote Differential ↓, Losses ↑
+  fighters.sort((a, b) => {
+    if (b.points !== a.points) return b.points - a.points;
+    if ((b.voteDifferential || 0) !== (a.voteDifferential || 0))
+      return (b.voteDifferential || 0) - (a.voteDifferential || 0);
+    return (a.losses || 0) - (b.losses || 0);
   });
 
   standingsTable.innerHTML = "";
 
   fighters.forEach((f, index) => {
+    // Build tooltip content for recent results
+    const tooltip = (f.recentResults || [])
+      .slice(-5)
+      .reverse()
+      .map(r => `${r.date.split("T")[0]} — ${r.outcome} vs ${r.opponent} (${r.votesFor}-${r.votesAgainst})`)
+      .join("<br>");
+
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${index + 1}</td>
-      <td>${f.name}</td>
+      <td class="fighter-cell">
+        <span class="fighter-name" data-tooltip="${tooltip}">
+          ${f.name}
+        </span>
+      </td>
+      <td>${f.points.toFixed(1)}</td>
       <td>${f.wins || 0}</td>
       <td>${f.losses || 0}</td>
       <td>${f.ties || 0}</td>
@@ -185,27 +195,18 @@ async function updateStandings() {
     `;
 
     // Highlight top 16
-    if (index < 16) {
-      row.classList.add("top16");
-    }
-
-    // Add cutoff line below 16th place
-    if (index === 15) {
-      row.classList.add("cutoff-line");
-    }
+    if (index < 16) row.classList.add("top16");
+    // Add cutoff line below 16th
+    if (index === 15) row.classList.add("cutoff-line");
 
     standingsTable.appendChild(row);
   });
 }
 
-
-/* -------------------------------
-   Real-time standings updates
---------------------------------*/
+// Real-time listener for standings
 onSnapshot(collection(db, "fighters"), () => updateStandings());
 
-/* -------------------------------
-   Initialize page
---------------------------------*/
+// Initialize page
 loadMatchups();
 updateStandings();
+

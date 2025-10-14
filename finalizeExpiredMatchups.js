@@ -1,8 +1,10 @@
-// finalizeExpiredMatchups.js
 import admin from "firebase-admin";
 import { readFileSync } from "fs";
 
-const serviceAccount = JSON.parse(readFileSync("./serviceAccountKey.json", "utf8"));
+// Load service account key for local admin access
+const serviceAccount = JSON.parse(
+  readFileSync("./serviceAccountKey.json", "utf8")
+);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -11,83 +13,102 @@ admin.initializeApp({
 const db = admin.firestore();
 
 async function finalizeExpiredMatchups() {
-  console.log("⏱ Checking for expired matchups...");
+  try {
+    console.log("🏁 Checking for expired matchups...");
 
-  const cutoff = admin.firestore.Timestamp.fromDate(
-    new Date(Date.now() - 24 * 60 * 60 * 1000) // 24 hours old
-  );
+    const cutoff = admin.firestore.Timestamp.fromDate(
+      new Date(Date.now() - 24 * 60 * 60 * 1000) // older than 24 hours
+    );
 
-  const snapshot = await db
-    .collection("matchups")
-    .where("completed", "==", false)
-    .where("createdAt", "<=", cutoff)
-    .get();
+    const snapshot = await db
+      .collection("matchups")
+      .where("completed", "==", false)
+      .where("createdAt", "<=", cutoff)
+      .get();
 
-  if (snapshot.empty) {
-    console.log("✅ No matchups to finalize.");
-    return;
-  }
-
-  console.log(`Found ${snapshot.size} expired matchups...`);
-  const batch = db.batch();
-
-  for (const docSnap of snapshot.docs) {
-    const data = docSnap.data();
-    const f1Ref = db.collection("fighters").doc(data.fighter1);
-    const f2Ref = db.collection("fighters").doc(data.fighter2);
-
-    const v1 = data.votes?.[data.fighter1] ?? 0;
-    const v2 = data.votes?.[data.fighter2] ?? 0;
-
-    const [f1Doc, f2Doc] = await Promise.all([f1Ref.get(), f2Ref.get()]);
-    const f1 = f1Doc.data() || {};
-    const f2 = f2Doc.data() || {};
-
-    // Initialize missing fields
-    const initFighter = f => ({
-      wins: f.wins || 0,
-      losses: f.losses || 0,
-      ties: f.ties || 0,
-      votesFor: f.votesFor || 0,
-      votesAgainst: f.votesAgainst || 0,
-    });
-
-    const f1Stats = initFighter(f1);
-    const f2Stats = initFighter(f2);
-
-    // Add votes
-    f1Stats.votesFor += v1;
-    f1Stats.votesAgainst += v2;
-    f2Stats.votesFor += v2;
-    f2Stats.votesAgainst += v1;
-
-    // Determine winner/tie
-    if (v1 > v2) {
-      f1Stats.wins++;
-      f2Stats.losses++;
-    } else if (v2 > v1) {
-      f2Stats.wins++;
-      f1Stats.losses++;
-    } else {
-      f1Stats.ties++;
-      f2Stats.ties++;
+    if (snapshot.empty) {
+      console.log("✅ No expired matchups found.");
+      return;
     }
 
-    f1Stats.voteDifferential = f1Stats.votesFor - f1Stats.votesAgainst;
-    f2Stats.voteDifferential = f2Stats.votesFor - f2Stats.votesAgainst;
+    const batch = db.batch();
 
-    // Update both fighters and the matchup
-    batch.update(f1Ref, f1Stats);
-    batch.update(f2Ref, f2Stats);
-    batch.update(docSnap.ref, { completed: true });
+    for (const docSnap of snapshot.docs) {
+      const matchup = docSnap.data();
+      const { fighter1, fighter2, votes = {} } = matchup;
 
-    console.log(
-      `🏁 Finalized ${data.fighter1} (${v1}) vs ${data.fighter2} (${v2})`
-    );
+      const f1Votes = votes[fighter1] || 0;
+      const f2Votes = votes[fighter2] || 0;
+
+      const f1Ref = db.collection("fighters").doc(fighter1);
+      const f2Ref = db.collection("fighters").doc(fighter2);
+
+      const [f1Doc, f2Doc] = await Promise.all([f1Ref.get(), f2Ref.get()]);
+      const f1Data = f1Doc.data() || {};
+      const f2Data = f2Doc.data() || {};
+
+      const isTie = f1Votes === f2Votes;
+      const f1Won = f1Votes > f2Votes;
+      const f2Won = f2Votes > f1Votes;
+
+      // Update fighter 1 stats
+      const updatedF1 = {
+        wins: (f1Data.wins || 0) + (f1Won ? 1 : 0),
+        losses: (f1Data.losses || 0) + (f2Won ? 1 : 0),
+        ties: (f1Data.ties || 0) + (isTie ? 1 : 0),
+        votesFor: (f1Data.votesFor || 0) + f1Votes,
+        votesAgainst: (f1Data.votesAgainst || 0) + f2Votes,
+      };
+      updatedF1.voteDifferential = updatedF1.votesFor - updatedF1.votesAgainst;
+
+      // Update fighter 2 stats
+      const updatedF2 = {
+        wins: (f2Data.wins || 0) + (f2Won ? 1 : 0),
+        losses: (f2Data.losses || 0) + (f1Won ? 1 : 0),
+        ties: (f2Data.ties || 0) + (isTie ? 1 : 0),
+        votesFor: (f2Data.votesFor || 0) + f2Votes,
+        votesAgainst: (f2Data.votesAgainst || 0) + f1Votes,
+      };
+      updatedF2.voteDifferential = updatedF2.votesFor - updatedF2.votesAgainst;
+
+      // Add match result history
+      const resultF1 = {
+        opponent: fighter2,
+        outcome: isTie ? "Tie" : f1Won ? "Win" : "Loss",
+        votesFor: f1Votes,
+        votesAgainst: f2Votes,
+        date: new Date().toISOString(),
+      };
+
+      const resultF2 = {
+        opponent: fighter1,
+        outcome: isTie ? "Tie" : f2Won ? "Win" : "Loss",
+        votesFor: f2Votes,
+        votesAgainst: f1Votes,
+        date: new Date().toISOString(),
+      };
+
+      // Apply updates in batch
+      batch.update(f1Ref, {
+        ...updatedF1,
+        recentResults: admin.firestore.FieldValue.arrayUnion(resultF1),
+      });
+
+      batch.update(f2Ref, {
+        ...updatedF2,
+        recentResults: admin.firestore.FieldValue.arrayUnion(resultF2),
+      });
+
+      // Mark matchup complete
+      batch.update(docSnap.ref, { completed: true });
+    }
+
+    await batch.commit();
+    console.log(`✅ Finalized ${snapshot.size} matchups and updated records.`);
+
+  } catch (err) {
+    console.error("❌ Error finalizing matchups:", err);
   }
-
-  await batch.commit();
-  console.log("✅ Finalization complete. Fighter records updated.");
 }
 
-finalizeExpiredMatchups().catch(err => console.error("❌ Error finalizing matchups:", err));
+finalizeExpiredMatchups();
