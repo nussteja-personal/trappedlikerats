@@ -174,25 +174,45 @@ async function updateStandings() {
   fighters.forEach((f, index) => {
     // Build tooltip content for recent results
     const tooltip = (f.recentResults || [])
-      .slice(-5)
-      .reverse()
-      .map(r => `${r.date.split("T")[0]} — ${r.outcome} vs ${r.opponent} (${r.votesFor}-${r.votesAgainst})`)
-      .join("<br>");
+    .slice(-5)
+    .reverse()
+    .map(r => {
+      let color, label;
+      if (r.outcome === "Win") {
+        color = "#4CAF50"; // green
+        label = "Win";
+      } else if (r.outcome === "Loss") {
+        color = "#F44336"; // red
+        label = "Loss";
+      } else {
+        color = "#FFC107"; // yellow
+        label = "Tie";
+      }
+      return `
+        <span style="color:${color}; font-weight:bold;">${label}</span>
+        — ${r.date.split("T")[0]} vs ${r.opponent}
+        (${r.votesFor}-${r.votesAgainst})
+      `;
+    })
+    .join("<br>");
+  
 
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${index + 1}</td>
-      <td class="fighter-cell">
-        <span class="fighter-name" data-tooltip="${tooltip}">
-          ${f.name}
-        </span>
-      </td>
-      <td>${f.points.toFixed(1)}</td>
-      <td>${f.wins || 0}</td>
-      <td>${f.losses || 0}</td>
-      <td>${f.ties || 0}</td>
-      <td>${f.voteDifferential || 0}</td>
-    `;
+    <td>${index + 1}</td>
+    <td class="fighter-cell">
+      <span class="fighter-name">
+        ${f.name}
+        <span class="tooltip">${tooltip}</span>
+      </span>
+    </td>
+    <td>${f.points.toFixed(1)}</td>
+    <td>${f.wins || 0}</td>
+    <td>${f.losses || 0}</td>
+    <td>${f.ties || 0}</td>
+    <td>${f.voteDifferential || 0}</td>
+  `;
+  
 
     // Highlight top 16
     if (index < 16) row.classList.add("top16");

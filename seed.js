@@ -14,14 +14,49 @@ const { Timestamp } = admin.firestore;
 
 async function resetAndSeedFighters() {
   const fightersCol = db.collection("fighters");
-  const existing = await fightersCol.get();
+  const existingSnap = await fightersCol.get();
+  const existingMap = new Map(existingSnap.docs.map(doc => [doc.id, doc.data()]));
   const batch = db.batch();
 
-  existing.forEach(doc => batch.delete(doc.ref));
-  fighters.forEach(f => batch.set(fightersCol.doc(f.id), f));
+  for (const f of fighters) {
+    const existing = existingMap.get(f.id);
+
+    if (existing) {
+      // Fighter already exists — preserve stats and history
+      const mergedData = {
+        id: f.id,
+        name: f.name,
+        image: f.image,
+        // Keep dynamic stats if they exist
+        wins: existing.wins || 0,
+        losses: existing.losses || 0,
+        ties: existing.ties || 0,
+        votesFor: existing.votesFor || 0,
+        votesAgainst: existing.votesAgainst || 0,
+        voteDifferential: existing.voteDifferential || 0,
+        recentResults: existing.recentResults || [],
+      };
+      batch.set(fightersCol.doc(f.id), mergedData, { merge: true });
+    } else {
+      // New fighter — create fresh record
+      const newFighter = {
+        id: f.id,
+        name: f.name,
+        image: f.image,
+        wins: 0,
+        losses: 0,
+        ties: 0,
+        votesFor: 0,
+        votesAgainst: 0,
+        voteDifferential: 0,
+        recentResults: [],
+      };
+      batch.set(fightersCol.doc(f.id), newFighter);
+    }
+  }
 
   await batch.commit();
-  console.log(`✅ Fighters collection reset with ${fighters.length} fighters`);
+  console.log(`✅ Fighter data merged safely (${fighters.length} total fighters).`);
 }
 
 async function getMatchups() {
@@ -113,7 +148,8 @@ async function generateSwissMatchups(fighters, pastMatchups) {
 
   pairs.forEach((pair, idx) => {
     const [f1, f2] = pair;
-    const matchupId = `${today}-matchup${idx + 1}`;
+    const indexStr = String(idx + 1).padStart(2, "0");
+    const matchupId = `${today}-matchup${indexStr}`;
     const docRef = db.collection("matchups").doc(matchupId);
     batch.set(docRef, {
       date: today,

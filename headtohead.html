@@ -216,7 +216,36 @@
   position: relative;
 }
 
-/* Tooltip bubble */
+.fighter-name:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Tooltip container */
+.tooltip {
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.8em;
+  line-height: 1.4;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+  pointer-events: none;
+  text-align: left;
+  min-width: 200px;
+  max-width: 260px;
+}
+
+
+/* Tooltip bubble
 .fighter-name::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -237,10 +266,10 @@
   pointer-events: none;
   max-width: 250px;
   text-align: left;
-}
+} */
 
 /* Tooltip arrow */
-.fighter-name::before {
+/* .fighter-name::before {
   content: "";
   position: absolute;
   bottom: 120%;
@@ -252,7 +281,7 @@
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.2s ease;
-}
+} */
 
 /* Hover activation */
 .fighter-name:hover::after,
@@ -264,7 +293,7 @@
   </style>
 </head>
 <body>
-  <h1>WAHHH</h1>
+  <h1>LET THE BATTLES BEGIN!!!</h1>
   <div class="container">
     <!-- LEFT: Voting Section -->
     <div id="matchupsContainer">
