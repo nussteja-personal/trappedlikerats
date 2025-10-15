@@ -231,10 +231,12 @@
 
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import admin from "firebase-admin";
-import { generateSwissMatchups, resetAndSeedFighters } from "./seedLogic.js";
+import { finalizeExpiredMatchups } from "./finalizeLogic.js";
+import { resetAndSeedFighters, generateSwissMatchups } from "./seedLogic.js";
 
 admin.initializeApp();
 const db = admin.firestore();
+
 
 /**
  * Automatically finalize expired matchups (runs hourly)
@@ -296,10 +298,44 @@ export const finalizeExpiredMatchups = onSchedule("every 60 minutes", async () =
 /**
  * Automatically generate new matchups daily (runs at 12:00am UTC)
  */
-export const generateDailyMatchups = onSchedule("0 0 * * *", async () => {
-  console.log("🗓 Generating daily matchups...");
-  await resetAndSeedFighters();
-  const pastMatchups = await db.collection("matchups").get();
-  const rankedFighters = await generateSwissMatchups(pastMatchups);
-  console.log("✅ Daily matchups generated!");
-});
+export const generateDailyMatchups = onSchedule(
+  {
+    schedule: "0 0 * * *", // midnight UTC
+    timeZone: "America/New_York", // convert to Eastern Time
+  },
+  async (event) => {
+    console.log("🕛 Starting daily finalize + matchup generation...");
+
+    try {
+      // Step 1: finalize yesterday’s matchups
+      console.log("🏁 Finalizing expired matchups...");
+      await finalizeExpiredMatchups();
+      console.log("✅ All expired matchups finalized.");
+
+      // Step 2: seed fighters (merge-safe)
+      console.log("🌱 Seeding fighter data...");
+      await resetAndSeedFighters();
+
+      // Step 3: fetch all past matchups
+      const pastMatchupsSnap = await db.collection("matchups").get();
+      const pastMatchups = pastMatchupsSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // Step 4: generate new Swiss-style matchups
+      console.log("🧩 Generating new Swiss matchups...");
+      const fightersSnap = await db.collection("fighters").get();
+      const fighters = fightersSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      await generateSwissMatchups(fighters, pastMatchups);
+
+      console.log("🎉 Daily matchup generation complete!");
+    } catch (error) {
+      console.error("❌ Error during daily job:", error);
+    }
+  }
+);
+
