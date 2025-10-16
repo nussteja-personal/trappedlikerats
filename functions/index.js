@@ -26,7 +26,7 @@ async function logToFirestore(type, status, details = {}) {
  */
 export const generateDailyMatchups = onSchedule(
   {
-    schedule: "0 0 * * *", // 12:00 AM UTC → 8:00 PM ET (adjust via timeZone)
+    schedule: "0 4 * * *", // 12:00 AM UTC → 8:00 PM ET (adjust via timeZone)
     timeZone: "America/New_York", // local midnight Eastern
   },
   async () => {
